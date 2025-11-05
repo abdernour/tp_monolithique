@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+	    <meta charset="UTF-8">
+	    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	    <title th:text="${mode == 'ajout'} ? 'Nouveau Produit' : 'Modifier Produit'">Formulaire Produit</title>
+	    <!-- Bootstrap CSS -->
+	    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+	    <!-- Font Awesome Icons -->
+	    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	    <!-- Custom CSS -->
+	    <link rel="stylesheet" th:href="@{/css/custom.css}">
+	</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" th:href="@{/produits}">
+                <i class="fas fa-box"></i> Gestion Produits
+            </a>
+        </div>
+    </nav>
+    
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">
+                            <i th:class="${mode == 'ajout'} ? 'fas fa-plus' : 'fas fa-edit'"></i>
+                            <span th:text="${mode == 'ajout'} ? 'Ajouter un Nouveau Produit' : 'Modifier le Produit'">
+                                Formulaire
+                            </span>
+                        </h4>
+                    </div>
+                    
+                    <div class="card-body">
+                        <form th:action="${mode == 'ajout'} ? @{/produits/ajouter} : @{/produits/modifier/{id}(id=${produit.id})}" 
+                              th:object="${produit}" 
+                              method="post">
+                            
+                            <!-- Nom du produit -->
+                            <div class="mb-3">
+                                <label for="nom" class="form-label">
+                                    <i class="fas fa-tag"></i> Nom du produit 
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       th:classappend="${#fields.hasErrors('nom')} ? 'is-invalid' : ''"
+                                       id="nom" 
+                                       th:field="*{nom}" 
+                                       placeholder="Ex: Ordinateur portable HP">
+                                <div th:if="${#fields.hasErrors('nom')}" class="invalid-feedback">
+                                    <span th:errors="*{nom}"></span>
+                                </div>
+                            </div>
+                            
+                            <!-- Prix -->
+                            <div class="mb-3">
+                                <label for="prix" class="form-label">
+                                    <i class="fas fa-dollar-sign"></i> Prix (DA) 
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <input type="number" 
+                                       step="0.01"
+                                       class="form-control" 
+                                       th:classappend="${#fields.hasErrors('prix')} ? 'is-invalid' : ''"
+                                       id="prix" 
+                                       th:field="*{prix}" 
+                                       placeholder="Ex: 45000.00">
+                                <div th:if="${#fields.hasErrors('prix')}" class="invalid-feedback">
+                                    <span th:errors="*{prix}"></span>
+                                </div>
+                            </div>
+                            
+                            <!-- Quantité -->
+                            <div class="mb-3">
+                                <label for="quantite" class="form-label">
+                                    <i class="fas fa-cubes"></i> Quantité en stock 
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <input type="number" 
+                                       class="form-control" 
+                                       th:classappend="${#fields.hasErrors('quantite')} ? 'is-invalid' : ''"
+                                       id="quantite" 
+                                       th:field="*{quantite}" 
+                                       placeholder="Ex: 50">
+                                <div th:if="${#fields.hasErrors('quantite')}" class="invalid-feedback">
+                                    <span th:errors="*{quantite}"></span>
+                                </div>
+                            </div>
+                            
+                            <!-- Description -->
+                            <div class="mb-3">
+                                <label for="description" class="form-label">
+                                    <i class="fas fa-align-left"></i> Description
+                                </label>
+                                <textarea class="form-control" 
+                                          th:classappend="${#fields.hasErrors('description')} ? 'is-invalid' : ''"
+                                          id="description" 
+                                          th:field="*{description}" 
+                                          rows="4"
+                                          placeholder="Description détaillée du produit..."></textarea>
+                                <div th:if="${#fields.hasErrors('description')}" class="invalid-feedback">
+                                    <span th:errors="*{description}"></span>
+                                </div>
+                                <small class="form-text text-muted">Maximum 500 caractères</small>
+                            </div>
+                            
+                            <!-- Date d'ajout (only in edit mode) -->
+                            <div th:if="${mode == 'modification'}" class="mb-3">
+                                <label class="form-label">
+                                    <i class="fas fa-calendar"></i> Date d'ajout
+                                </label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       th:value="${#temporals.format(produit.dateAjout, 'dd/MM/yyyy')}" 
+                                       readonly>
+                            </div>
+                            
+                            <!-- Buttons -->
+                            <div class="d-flex justify-content-between mt-4">
+                                <a th:href="@{/produits}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Retour
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> 
+                                    <span th:text="${mode == 'ajout'} ? 'Ajouter' : 'Modifier'">Enregistrer</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Help Card -->
+                <div class="card mt-3 border-info">
+                    <div class="card-body">
+                        <h6 class="card-title"><i class="fas fa-info-circle text-info"></i> Aide</h6>
+                        <ul class="mb-0">
+                            <li>Les champs marqués d'une <span class="text-danger">*</span> sont obligatoires</li>
+                            <li>Le nom doit contenir entre 3 et 100 caractères</li>
+                            <li>Le prix doit être supérieur à 0</li>
+                            <li>La quantité ne peut pas être négative</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
