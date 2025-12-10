@@ -1,4 +1,4 @@
-# 🛒 Application CRUD de Gestion de Produits
+# Application CRUD de Gestion de Produits
 
 Application web monolithique développée avec **Spring Boot** pour la gestion complète de produits (Create, Read, Update, Delete).
 
@@ -32,7 +32,7 @@ Application web monolithique développée avec **Spring Boot** pour la gestion c
 ### Base de données
 - **MySQL 8.0**
 
-## 📁 Architecture
+## Architecture
 ```
 tp-monolithique/
 ├── src/main/java/
@@ -56,10 +56,6 @@ tp-monolithique/
 - Java JDK 17+
 - Maven 3.6+
 - MySQL 8.0+
-```
 
-
-
-## 📝 License
 
 Ce projet est développé à des fins éducatives.
