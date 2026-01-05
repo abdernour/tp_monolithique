@@ -1,0 +1,94 @@
+# ==========================================
+# DOCKER COMPOSE - ORCHESTRATION DES SERVICES
+# ==========================================
+
+services:
+  # SERVICE 1 : Base de données MySQL
+  # ----------------------------------
+  mysql-db:
+    # Image officielle MySQL version 8
+    image: mysql:8.0
+
+    # Nom du conteneur
+    container_name: mysql-container
+
+    # Redémarrage automatique en cas d'échec
+    restart: always
+
+    # Variables d'environnement pour configurer MySQL
+    environment:
+      MYSQL_ROOT_PASSWORD: root123        # Mot de passe root
+      MYSQL_DATABASE: gestion_produits    # Base de données créée automatiquement
+      MYSQL_USER: springuser              # Utilisateur application
+      MYSQL_PASSWORD: springpass          # Mot de passe utilisateur
+
+    # Ports exposés : port_hote:port_conteneur
+    ports:
+      - "3307:3306"  # Port 3307 sur votre machine → 3306 dans le conteneur
+
+    # Volume pour persister les données (ne pas perdre les données au redémarrage)
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+    # Réseau pour communiquer avec l'application
+    networks:
+      - spring-network
+
+    # Health check pour vérifier que MySQL est prêt
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot123"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # SERVICE 2 : Application Spring Boot
+  # ------------------------------------
+  spring-app:
+    # Construire l'image depuis le Dockerfile
+    build:
+      context: .           # Contexte = répertoire actuel
+      dockerfile: Dockerfile
+
+    # Nom du conteneur
+    container_name: spring-app-container
+
+    # Redémarrage automatique
+    restart: always
+
+    # Variables d'environnement pour Spring Boot
+    environment:
+      # Configuration de la base de données
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/gestion_produits?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: springuser
+      SPRING_DATASOURCE_PASSWORD: springpass
+
+      # Configuration JPA/Hibernate
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: "true"
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.MySQLDialect
+
+    # Ports exposés
+    ports:
+      - "8081:8080"  # Port 8081 sur votre machine → 8080 dans le conteneur
+
+    # Dépendances : attendre que MySQL soit prêt
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+
+    # Réseau
+    networks:
+      - spring-network
+
+# RÉSEAUX
+# --------
+# Réseau bridge pour permettre la communication entre conteneurs
+networks:
+  spring-network:
+    driver: bridge
+
+# VOLUMES
+# -------
+# Volume nommé pour persister les données MySQL
+volumes:
+  mysql-data:
